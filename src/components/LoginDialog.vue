@@ -79,10 +79,6 @@ export default {
   props: {
     LoginDialogVisible: Boolean
   },
-  created() {
-    //第一步先从后端获取数据
-    /*this.loadSchools()*/
-  },
   inject: ['reload'],
   data() {
     let validateMailFormat = async (rule, value, callback) => {

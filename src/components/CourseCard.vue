@@ -3,7 +3,7 @@
     <router-link :to="{path: '/course/' + course.id}" class="cardLink">
       <el-card shadow="hover" :body-style="cardBodyStyle">
 <!--        <img :src="course.imgUrl" class="courseImg" alt="加载失败"/>-->
-        <div :style="{backgroundImage: 'url(' + course.imgUrl + ')', backgroundSize: 'cover'}">
+        <div :style="{backgroundImage: 'url(' + course.imgUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center center'}">
           <img src="../assets/transparent.png" alt="加载失败" class="courseImg"/>
         </div>
 <!--        <el-image :src="course.imgUrl"></el-image>-->

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="courseList.length === 0">
       <span class="title1">检索到
         <span style="color: #333333">{{totalCourse}}门</span>
         相关课程</span>
@@ -29,7 +29,7 @@ export default {
     t: {
       type: String,
       default: '0'
-    }
+    },
   },
   watch: {
     t() {
@@ -50,14 +50,29 @@ export default {
   },
   methods: {
     getRecommend() {
-      let recommendUrl = '/class/get_all_recommends/' + this.$store.getters.getCurUser.uid + '/' + ((this.curPage - 1) * 20) + '/' + this.t;
-      this.$axios.get(recommendUrl)
-          .then((res) => {
-            this.courseList = res.data.courseList;
-            this.totalCourse = res.data.total;
-          }).catch((err) => {
-        console.log(err)
-      })
+      if (this.$route.query.keyword === '' || this.$route.query.keyword === undefined){
+        let recommendUrl = '/class/get_all_recommends/' + this.$store.getters.getCurUser.uid + '/' + ((this.curPage - 1) * 20) + '/' + this.t;
+        this.$axios.get(recommendUrl)
+            .then((res) => {
+              this.courseList = res.data.courseList;
+              this.totalCourse = res.data.total;
+            }).catch((err) => {
+          console.log(err)
+        })
+      }
+      else {
+        this.$axios({
+          url: '/class/search_courses',
+          params: {
+            keyWord: this.$route.query.keyword,
+            start: this.curPage
+          },
+          method: 'get'
+        }).then((res) => {
+          this.courseList = res.data.courseList;
+          this.totalCourse = res.data.total;
+        })
+      }
     }
   }
 }

@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^0.26.0",
     "core-js": "^3.6.5",
+    "echarts": "^5.3.2",
     "element-ui": "^2.15.6",
     "muse-ui": "^3.0.2",
     "qs": "^6.10.3",
@@ -23,6 +24,7 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
+    "vue-echarts": "^6.0.2",
     "vue-template-compiler": "^2.6.11"
   },
   "eslintConfig": {

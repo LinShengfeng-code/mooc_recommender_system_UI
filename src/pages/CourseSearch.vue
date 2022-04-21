@@ -37,12 +37,13 @@ export default {
       .then((res)=>{
         this.typeList = this.typeList.concat(res.data.typeList)
       }).catch((err)=>{
-        console.log(err)
+        console.log(err);
       })
     },
     handleType(index, indexPath) {
       this.curType = index;
       console.log(indexPath)
+      this.$route.query.keyword = '';
     }
   }
 }

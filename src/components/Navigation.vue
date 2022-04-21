@@ -14,8 +14,8 @@
               <el-menu-item index="1" class="nav-character"><router-link to="/">课程广场</router-link></el-menu-item>
               <el-menu-item index="2" class="nav-character"><router-link to="/about">关于我们</router-link></el-menu-item>
               <el-menu-item>
-                <el-input placeholder="搜索课程" v-model="searchContent" class="input-with-select">
-                  <el-button slot="append" icon="el-icon-search"></el-button>
+                <el-input placeholder="搜索课程" v-model="searchContent" class="input-with-select" @keyup.enter.native="search(searchContent)">
+                  <el-button slot="append" icon="el-icon-search" @click="search(searchContent)"></el-button>
                 </el-input>
               </el-menu-item>
               <template v-if="this.$store.getters.tokenNotExist">
@@ -57,6 +57,7 @@ export default {
       searchContent: '',
     }
   },
+  inject: ['reload'],
   methods: {
     openLoginDialog(val) {
       this.loginVisible = true
@@ -64,6 +65,12 @@ export default {
     },
     closeLoginDialog() {
       this.loginVisible = false
+    },
+    search(s) {
+      if (s === '') return null;
+      this.$router.push({path: '/all', query:{keyword: s}})
+      this.reload()
+      this.searchContent = '';
     }
   }
 }

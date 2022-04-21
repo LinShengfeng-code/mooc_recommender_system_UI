@@ -2,8 +2,8 @@
   <el-main>
     <div class="mainPage">
       <CourseCaseroul></CourseCaseroul>
-      <MainRecommendPart :course-list="classicCourseList"></MainRecommendPart>
-      <MainRecommendPart title="最近上新"></MainRecommendPart>
+      <MainRecommendPart title="经典推荐" :course-list="classicCourseList"></MainRecommendPart>
+      <MainRecommendPart title="最近上新" :course-list="newlyCourseList"></MainRecommendPart>
     </div>
   </el-main>
 </template>
@@ -20,10 +20,12 @@ export default {
   },
   created() {
     this.getClassicRecommend()
+    this.getNewlyRecommend()
   },
   data() {
     return {
-      classicCourseList: []
+      classicCourseList: [],
+      newlyCourseList: []
     }
   },
   methods: {
@@ -45,6 +47,16 @@ export default {
       .then((res)=>{
         this.classicCourseList = res.data.courseList;
       }).catch((err)=>{
+        console.log(err);
+      })
+    },
+    getNewlyRecommend() {
+      this.$axios({
+        url: 'class/newly_recommend',
+        method: 'get'
+      }).then((res) => {
+        this.newlyCourseList = res.data.courseList
+      }).catch((err) => {
         console.log(err);
       })
     }
