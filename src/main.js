@@ -5,14 +5,13 @@ import axios from 'axios'
 import qs from 'qs'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import echarts from 'vue-echarts'
-import 'echarts/lib/chart/line'
+import * as echarts from 'echarts'
 import App from './App.vue'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI);
 
-Vue.component('chart', echarts);
+Vue.prototype.$echarts = echarts;
 Vue.prototype.$axios = axios;
 axios.defaults.baseURL = '/api'
 axios.defaults.headers.post['Content-Type'] = 'application/json';

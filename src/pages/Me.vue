@@ -18,16 +18,18 @@
       <div style="margin-top: -50px">
         <el-row type="flex" justify="space-between">
           <el-col :span="24">
-            <h1>{{this.$store.getters.getCurUser.nick}} 的个人主页 </h1>
+            <h1 style="font-size: 36px">{{this.$store.getters.getCurUser.nick}} 的个人主页 </h1>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-descriptions class="margin-top" title="个人信息" :column="4" direction="vertical">
-              <el-descriptions-item label="昵称">{{this.$store.getters.getCurUser.nick}}</el-descriptions-item>
-              <el-descriptions-item label="邮箱">{{this.$store.getters.getCurUser.mail}}</el-descriptions-item>
-              <el-descriptions-item label="类型">
-                <el-tag size="medium">学生</el-tag>
+              <el-descriptions-item label="id" span="1">{{this.$store.getters.getCurUser.uid}}</el-descriptions-item>
+              <el-descriptions-item label="邮箱" span="2">{{this.$store.getters.getCurUser.mail}}</el-descriptions-item>
+              <el-descriptions-item label="类型" span="1">
+                <el-tag size="medium" type="danger" v-if="$store.getters.getCurUser.type === 0">管理员</el-tag>
+                <el-tag size="medium" type="success" v-if="$store.getters.getCurUser.type === 1">教师</el-tag>
+                <el-tag size="medium" v-if="$store.getters.getCurUser.type === 2">学生</el-tag>
               </el-descriptions-item>
             </el-descriptions>
           </el-col>
@@ -38,14 +40,18 @@
               </el-col>
             </el-row>
             <el-row type="flex" justify="space-around">
-              <el-col v-for="tag in tags" :key="tag.name">
+              <el-col v-for="tag in hobbies" :key="tag.name" :span="4">
                 <el-tag
-                    closable
                     :type="tag.type">
                   {{tag.name}}
                 </el-tag>
               </el-col>
             </el-row>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col>
+            <div id="chart" style="height: 300px; width: 100%"></div>
           </el-col>
         </el-row>
         <el-row>
@@ -59,27 +65,27 @@
           </el-col>
         </el-row>
       </div>
-      <el-dialog :visible.sync="avatarDialogVisible" title="修改头像" width="25%">
-        <div class="avatar-dialog">
-          <el-upload
-              class="avatar-uploader"
-              action="/"
-              :show-file-list="false"
-              :on-success="handleAvatarSuccess"
-              :before-upload="beforeAvatarUpload"
-              :http-request="avatarUpload">
-            <img v-if="imageUrl" :src="imageUrl" class="avatar"/>
-            <div v-else class="avatar-uploader-icon">
-              <i class="el-icon-plus"></i>
-            </div>
-          </el-upload>
-        </div>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-        </div>
-      </el-dialog>
     </div>
+    <el-dialog :visible.sync="avatarDialogVisible" title="修改头像" width="25%">
+      <div class="avatar-dialog">
+        <el-upload
+            class="avatar-uploader"
+            action="/"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload"
+            :http-request="avatarUpload">
+          <img v-if="imageUrl" :src="imageUrl" class="avatar"/>
+          <div v-else class="avatar-uploader-icon">
+            <i class="el-icon-plus"></i>
+          </div>
+        </el-upload>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-main>
 </template>
 
@@ -91,20 +97,18 @@ export default {
   components: {MainRecommendTitle, MyRegisters},
   created() {
     if (this.$store.getters.getCurUser.avatar !== '') this.avatarUrl = 'http://localhost:8000/media/' + this.$store.getters.getCurUser.avatar
-    else this.avatarUrl = 'http://localhost:8000/media/web/img/avatar/default.jpg'
+    else this.avatarUrl = 'http://localhost:8000/media/web/img/avatar/default.jpg';
+    this.getHobbies()
+  },
+  mounted() {
+    this.drawPic();
   },
   data() {
     return {
       imageUrl: '',
       avatarUrl: 'http://localhost:8000/media/web/img/avatar/default.jpg',
       avatarDialogVisible: false,
-      tags: [
-        {name: '标签一', type: ''},
-        {name: '标签二', type: 'success'},
-        {name: '标签三', type: 'info'},
-        {name: '标签四', type: 'warning'},
-        {name: '标签五', type: 'danger'}
-      ]
+      hobbies: []
     }
   },
   methods: {
@@ -146,6 +150,69 @@ export default {
         this.$message.error('上传头像图片大小不能超过 2MB!');
       }
       return isJPG && isLt2M;
+    },
+    drawPic() {
+      let option = {
+        tooltip: {
+          trigger: 'item',
+          formatter: '{a} <br/>{b}: {c} ({d}%)'
+        },
+        legend: {
+          orient: 'vertical',
+          left: 10,
+          data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+        },
+        series: [
+          {
+            name: '访问来源',
+            type: 'pie',
+            radius: ['50%', '70%'],
+            avoidLabelOverlap: false,
+            label: {
+              show: false,
+              position: 'center'
+            },
+            emphasis: {
+              label: {
+                show: true,
+                fontSize: '30',
+                fontWeight: 'bold'
+              }
+            },
+            labelLine: {
+              show: false
+            },
+            data: [
+              {value: 335, name: '直接访问'},
+              {value: 310, name: '邮件营销'},
+              {value: 234, name: '联盟广告'},
+              {value: 135, name: '视频广告'},
+              {value: 1548, name: '搜索引擎'}
+            ]
+          }
+        ]
+      };
+      let chart = this.$echarts.init(document.getElementById("chart"));
+      chart.setOption(option);
+    },
+    getHobbies() {
+      this.$axios({
+        url: 'users/get_hobbies',
+        params: {
+          uid: this.$store.getters.getCurUser.uid
+        },
+        method: 'get'
+      }).then((res) => {
+        this.hobbies = []
+        for(let i in res.data.hobbies) {
+          let t = 'danger';
+          if (res.data.hobbies[i].length < 3) t = 'success';
+          else if (res.data.hobbies[i].length < 4) t = 'info';
+          this.hobbies.push({name:res.data.hobbies[i], type: t})
+        }
+      }).catch((err)=>{
+        console.log(err)
+      })
     }
   }
 }
