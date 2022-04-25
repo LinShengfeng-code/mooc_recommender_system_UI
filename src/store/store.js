@@ -35,7 +35,6 @@ const store = new Vuex.Store({
       return state.cur_user
     },
     tokenNotExist: (state) => {
-      console.log(state.token)
       return (state.token === null || state.token === '')
     }
   }

@@ -21,11 +21,13 @@
             <h1 style="font-size: 36px">{{this.$store.getters.getCurUser.nick}} 的个人主页 </h1>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-descriptions class="margin-top" title="个人信息" :column="4" direction="vertical">
+        <el-row style="height: 150px">
+          <el-col :span="14">
+            <el-descriptions class="margin-top" title="个人信息" :column="9" direction="vertical">
               <el-descriptions-item label="id" span="1">{{this.$store.getters.getCurUser.uid}}</el-descriptions-item>
               <el-descriptions-item label="邮箱" span="2">{{this.$store.getters.getCurUser.mail}}</el-descriptions-item>
+              <el-descriptions-item label="学校" span="2" v-if="$store.getters.getCurUser.type !== 0">{{this.school}}</el-descriptions-item>
+              <el-descriptions-item label="学院" span="3" v-if="$store.getters.getCurUser.type !== 0">{{this.college}}</el-descriptions-item>
               <el-descriptions-item label="类型" span="1">
                 <el-tag size="medium" type="danger" v-if="$store.getters.getCurUser.type === 0">管理员</el-tag>
                 <el-tag size="medium" type="success" v-if="$store.getters.getCurUser.type === 1">教师</el-tag>
@@ -33,18 +35,15 @@
               </el-descriptions-item>
             </el-descriptions>
           </el-col>
-          <el-col :span="12">
+          <el-col :span="10">
             <el-row>
               <el-col>
                 <h4 style="margin-top: 0; margin-bottom: 3%">兴趣</h4>
               </el-col>
             </el-row>
             <el-row type="flex" justify="space-around">
-              <el-col v-for="tag in hobbies" :key="tag.name" :span="4">
-                <el-tag
-                    :type="tag.type">
-                  {{tag.name}}
-                </el-tag>
+              <el-col>
+                <div id="tagStatistic" style="width: 100%; height: 150px"></div>
               </el-col>
             </el-row>
           </el-col>
@@ -95,23 +94,40 @@ import MyRegisters from "@/components/MyRegisters";
 export default {
   name: "Me",
   components: {MainRecommendTitle, MyRegisters},
-  created() {
+  async created() {
     if (this.$store.getters.getCurUser.avatar !== '') this.avatarUrl = 'http://localhost:8000/media/' + this.$store.getters.getCurUser.avatar
     else this.avatarUrl = 'http://localhost:8000/media/web/img/avatar/default.jpg';
-    this.getHobbies()
+    if (this.$store.getters.getCurUser.type !== 0) {
+      this.getSchoolCollege()
+    }
   },
   mounted() {
-    this.drawPic();
+    this.drawHobbiesPie();
   },
   data() {
     return {
       imageUrl: '',
       avatarUrl: 'http://localhost:8000/media/web/img/avatar/default.jpg',
       avatarDialogVisible: false,
-      hobbies: []
+      hobbies: [],
+      hobbiesName: [],
+      school: '',
+      college: ''
     }
   },
   methods: {
+    getSchoolCollege() {
+      this.$axios({
+        url: 'users/get_school_college',
+        params: {
+          uid: this.$store.getters.getCurUser.uid
+        },
+        method: 'get'
+      }).then((res)=>{
+        this.school = res.data.school;
+        this.college = res.data.college;
+      })
+    },
     avatarUpload(params) {
       console.log(params)
       if (this.$store.getters.getToken !== '') {
@@ -151,20 +167,36 @@ export default {
       }
       return isJPG && isLt2M;
     },
-    drawPic() {
+    async drawHobbiesPie() {
+      let hobbiesName = [], hobbies = [];
+      await this.$axios({
+        url: 'users/get_hobbies',
+        params: {
+          uid: this.$store.getters.getCurUser.uid
+        },
+        method: 'get'
+      }).then((res) => {
+        for (let i in res.data.hobbies) {
+          hobbiesName.push(i);
+          hobbies.push({value: res.data.hobbies[i], name: i})
+        }
+      }).catch((err)=>{
+        console.log(err)
+      })
       let option = {
         tooltip: {
           trigger: 'item',
           formatter: '{a} <br/>{b}: {c} ({d}%)'
         },
         legend: {
-          orient: 'vertical',
-          left: 10,
-          data: ['直接访问', '邮件营销', '联盟广告', '视频广告', '搜索引擎']
+          orient: 'horizontal',
+          top: -5,
+          left: 0,
+          data: hobbiesName
         },
         series: [
           {
-            name: '访问来源',
+            name: '注册次数',
             type: 'pie',
             radius: ['50%', '70%'],
             avoidLabelOverlap: false,
@@ -175,44 +207,19 @@ export default {
             emphasis: {
               label: {
                 show: true,
-                fontSize: '30',
+                fontSize: '15',
                 fontWeight: 'bold'
               }
             },
             labelLine: {
               show: false
             },
-            data: [
-              {value: 335, name: '直接访问'},
-              {value: 310, name: '邮件营销'},
-              {value: 234, name: '联盟广告'},
-              {value: 135, name: '视频广告'},
-              {value: 1548, name: '搜索引擎'}
-            ]
+            data: hobbies
           }
         ]
       };
-      let chart = this.$echarts.init(document.getElementById("chart"));
-      chart.setOption(option);
-    },
-    getHobbies() {
-      this.$axios({
-        url: 'users/get_hobbies',
-        params: {
-          uid: this.$store.getters.getCurUser.uid
-        },
-        method: 'get'
-      }).then((res) => {
-        this.hobbies = []
-        for(let i in res.data.hobbies) {
-          let t = 'danger';
-          if (res.data.hobbies[i].length < 3) t = 'success';
-          else if (res.data.hobbies[i].length < 4) t = 'info';
-          this.hobbies.push({name:res.data.hobbies[i], type: t})
-        }
-      }).catch((err)=>{
-        console.log(err)
-      })
+      let tagPieChart = this.$echarts.init(document.getElementById("tagStatistic"));
+      tagPieChart.setOption(option);
     }
   }
 }
