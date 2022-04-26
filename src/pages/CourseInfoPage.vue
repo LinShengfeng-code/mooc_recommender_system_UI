@@ -66,6 +66,7 @@ import AddComment from "@/components/AddComment";
 import MainRecommendPart from "@/components/MainRecommendPart";
 export default {
   name: "CourseInfoPage",
+  inject: ['reload'],
   components: {MainRecommendPart, AddComment, CourseCommentBoard},
   async created() {
     await this.getCourseInfo(this.$route.params.courseId)
@@ -169,6 +170,13 @@ export default {
     },
     add_comments(c) {
       this.comments.push(c)
+    }
+  },
+  watch: {
+    $route: {
+      handler: function () {
+        this.reload()
+      }
     }
   }
 }

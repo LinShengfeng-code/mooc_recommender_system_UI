@@ -38,7 +38,7 @@
           <el-col :span="10">
             <el-row>
               <el-col>
-                <h4 style="margin-top: 0; margin-bottom: 3%">兴趣</h4>
+                <h4 style="margin-top: 0; margin-bottom: 3%">注册统计</h4>
               </el-col>
             </el-row>
             <el-row type="flex" justify="space-around">
@@ -50,7 +50,12 @@
         </el-row>
         <el-row>
           <el-col>
-            <div id="chart" style="height: 300px; width: 100%"></div>
+            <h3 style="font-size: 24px; margin: 0 0">兴趣预测</h3>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col>
+            <div id="intentionBarChart" style="height: 300px; width: 100%"></div>
           </el-col>
         </el-row>
         <el-row>
@@ -74,7 +79,7 @@
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
             :http-request="avatarUpload">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar"/>
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" alt="图片加载错误"/>
           <div v-else class="avatar-uploader-icon">
             <i class="el-icon-plus"></i>
           </div>
@@ -91,6 +96,7 @@
 <script>
 import MainRecommendTitle from "@/components/MainRecommendTitle";
 import MyRegisters from "@/components/MyRegisters";
+
 export default {
   name: "Me",
   components: {MainRecommendTitle, MyRegisters},
@@ -103,6 +109,7 @@ export default {
   },
   mounted() {
     this.drawHobbiesPie();
+    this.drawIntentionBar();
   },
   data() {
     return {
@@ -220,6 +227,65 @@ export default {
       };
       let tagPieChart = this.$echarts.init(document.getElementById("tagStatistic"));
       tagPieChart.setOption(option);
+    },
+    async drawIntentionBar() {
+      let intentionList = [], typeName = [];
+      await this.$axios({
+        url: 'class/intention',
+        params: {
+          uid: this.$store.getters.getCurUser.uid
+        },
+        method: 'get'
+      }).then((res) => {
+        intentionList = res.data.intention;
+        for (let i in intentionList) {
+          intentionList[i] = intentionList[i].toFixed(2);
+          if (intentionList[i] > 30) {
+            intentionList[i] = {
+              value: intentionList[i],
+              itemStyle: {
+                color: '#FCD900'
+              }
+            }
+          }
+          else if (intentionList[i] > 10) {
+            intentionList[i] = {
+              value: intentionList[i],
+              itemStyle: {
+                color: '#E8630A'
+              }
+            }
+          }
+        }
+        typeName = res.data.typeName;
+      }).catch((err) => {
+        console.log(err)
+      });
+      let option = {
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c}%'
+        },
+        xAxis: {
+          data: typeName,
+          axisLabel: {
+            interval: 0,
+            formatter: function (value) {
+              return value.split('').join('\n')
+            }
+          }
+        },
+        yAxis: {},
+        series: [
+          {
+            type: 'bar',
+            data: intentionList,
+            barWidth: '50%'
+          }
+        ]
+      };
+      let intentionBarChart = this.$echarts.init(document.getElementById("intentionBarChart"));
+      intentionBarChart.setOption(option);
     }
   }
 }

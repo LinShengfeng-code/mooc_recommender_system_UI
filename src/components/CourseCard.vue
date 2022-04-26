@@ -1,6 +1,6 @@
 <template>
-  <div class="cardBorderStyle">
-    <router-link :to="{path: '/course/' + course.id}" class="cardLink">
+  <div class="cardBorderStyle" @click="$router.push({path: '/course/' + course.id})">
+    <a class="cardLink">
       <el-card shadow="hover" :body-style="cardBodyStyle">
 <!--        <img :src="course.imgUrl" class="courseImg" alt="加载失败"/>-->
         <div :style="{backgroundImage: 'url(' + course.imgUrl + ')', backgroundSize: 'cover', backgroundPosition: 'center center'}">
@@ -18,7 +18,7 @@
           </div>
         </div>
       </el-card>
-    </router-link>
+    </a>
   </div>
 </template>
 
@@ -73,6 +73,7 @@ export default {
 }
 .cardBorderStyle:hover {
   transform: translate(0, -2%);
+  cursor: pointer;
 }
 .courseTitle {
   font-family: "PingFang SC",serif;
