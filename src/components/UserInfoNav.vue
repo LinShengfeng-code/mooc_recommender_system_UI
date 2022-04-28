@@ -9,7 +9,7 @@
       <el-button type="text" class="info-button" @click="logOut">退出登录</el-button>
     </div>
     <el-button class="nav-userinfo" slot="reference">
-      <el-avatar :src="'http://localhost:8000/media/' + this.$store.getters.getCurUser.avatar"></el-avatar>
+      <el-avatar :src="'http://localhost:8000/media/' + (this.$store.getters.getCurUser.avatar === undefined ? 'web/img/avatar/default.jpg':this.$store.getters.getCurUser.avatar)"></el-avatar>
     </el-button>
   </el-popover>
 </template>

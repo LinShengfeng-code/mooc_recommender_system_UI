@@ -247,12 +247,15 @@ export default {
                 'Content-Type': 'application/json'
               }
             }).then((res)=>{
+              res.data.cur_user = JSON.parse(res.data.cur_user)
+              res.data.cur_user.avatar = 'web/img/avatar/default.jpg'
               this.$store.commit('setToken', res.data.token)
               this.$store.commit('setCurUser', res.data.cur_user)
-              this.$message({
-                message: '注册成功',
-                type: 'success'
-              })
+              this.$notify.success({
+                title: '注册成功!',
+                message: '请尽快进入个人主页定义您的兴趣，祝您学习愉快!',
+                showClose: true
+              });
               this.reload()
               this.closeLoginDialog()
             })

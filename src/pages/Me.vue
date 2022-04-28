@@ -50,7 +50,8 @@
         </el-row>
         <el-row>
           <el-col>
-            <h3 style="font-size: 24px; margin: 0 0">兴趣预测</h3>
+            <span style="font-size: 24px; margin: 0 0; font-weight: bold">兴趣预测 </span>
+            <interest-dialog></interest-dialog>
           </el-col>
         </el-row>
         <el-row>
@@ -96,10 +97,11 @@
 <script>
 import MainRecommendTitle from "@/components/MainRecommendTitle";
 import MyRegisters from "@/components/MyRegisters";
+import InterestDialog from "@/components/InterestDialog";
 
 export default {
   name: "Me",
-  components: {MainRecommendTitle, MyRegisters},
+  components: {InterestDialog, MainRecommendTitle, MyRegisters},
   async created() {
     if (this.$store.getters.getCurUser.avatar !== '') this.avatarUrl = 'http://localhost:8000/media/' + this.$store.getters.getCurUser.avatar
     else this.avatarUrl = 'http://localhost:8000/media/web/img/avatar/default.jpg';
@@ -119,7 +121,8 @@ export default {
       hobbies: [],
       hobbiesName: [],
       school: '',
-      college: ''
+      college: '',
+      interestDialogVisible: false
     }
   },
   methods: {
@@ -141,7 +144,6 @@ export default {
         let upUrl = 'users/update_avatar/' + this.$store.getters.getCurUser.uid
         let form = new FormData();
         form.append("avatar", params.file);
-        console.log(upUrl);
         this.$axios({
           url: upUrl,
           method: 'POST',
