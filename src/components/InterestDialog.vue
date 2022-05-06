@@ -67,9 +67,6 @@ export default {
         uid: this.$store.getters.getCurUser.uid,
         interestList: this.interestList
       }
-      console.log(this.$store.getters.getCurUser.uid);
-      console.log(this.interestList);
-      console.log(f);
       this.$axios({
         url: 'users/modify_intentions',
         data: JSON.stringify(f),

@@ -13,7 +13,7 @@
           :page-size="20"
           :total="totalCourse"
           :current-page.sync="curPage"
-          v-on:current-change="getRecommend"
+          @current-change="getRecommend"
           hide-on-single-page>
       </el-pagination>
     </div>

@@ -29,7 +29,8 @@
             <span class="audience">{{course.audience}}人已报名</span>
           </div>
           <div>
-            <el-button class="join" v-on:click="enroll" :disabled="enrolled">加入学习</el-button>
+            <el-button class="join" @click="toLink(course.originLink)" v-if="enrolled" :disabled="(course.originLink === null)">打开源课程</el-button>
+            <el-button class="join" v-on:click="enroll" v-else>加入学习</el-button>
           </div>
         </div>
       </div>
@@ -83,6 +84,9 @@ export default {
     }
   },
   methods: {
+    toLink(url) {
+      if (url !== null) window.open(url, '_blank');
+    },
     enroll() {
       if (this.$store.getters.tokenNotExist) this.$message.error('请先登录')
       else {
@@ -132,6 +136,7 @@ export default {
         this.course = res.data.course;
       }).catch((err) => {
         console.log(err);
+        this.$message.error('网络错误!')
       })
     },
     changeTimeFormat(t) {
